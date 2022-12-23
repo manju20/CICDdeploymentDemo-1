@@ -5,6 +5,10 @@
   vars:
    repo_path: https://github.com/Sonal0409/AnsibleDockerdemo.git
    dest_path: /tmp/gitrepo
+  vars_prompt:
+  - name: image_name
+    prompt: Give the ImageName
+    private: false
   tasks:
   - name: Install multiple packages on host server
     yum: name={{item}} state=present
@@ -15,7 +19,9 @@
     service: name=docker state=started
   - name: Clone the repo to HostServer
     git: repo={{repo_path}} dest={{dest_path}}
+  - name: Copy the build in the destination
+    copy: src=/var/lib/jenkins/workspace/CICDPipelineDemo1/target/addressbook.war dest={{dest_path}}
   - name: Build Dockerfile
-    command: chdir={{dest_path}} docker build -t ansiblejenkins .
+    command: chdir={{dest_path}} docker build -t {{image_name}} .
   - name: Run the image to deploy app in container
-    command: docker run -d -P ansiblejenkins
+    command: docker run -d -P {{image_name}}
